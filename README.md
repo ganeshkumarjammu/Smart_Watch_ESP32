@@ -82,7 +82,7 @@ Install via Arduino Library Manager:
 ## 5. Code
 The main code (`ESP32_SmartWatch.ino`) initializes the GY-MAX30100 and SSD1306, syncs time via NTP, stores date/time in EEPROM, and displays date, time, instant BPM, average BPM, and SpO2 on the OLED with a 2-second "Smart Watch" splash screen.  Open Code Folder for more to look into to code.
 
-Main Code :[[Smart_Watch_Max30100/Smart_Watch_Max30100.ino]]
+Main Code : [[Smart_Watch_Max30100.ino]]
 
 ### Limitations
 - **No Temperature Sensor**: The GY-MAX30100 lacks a temperature sensor (unlike MAX30102). Adding a DS18B20 or similar is required for temperature monitoring.
