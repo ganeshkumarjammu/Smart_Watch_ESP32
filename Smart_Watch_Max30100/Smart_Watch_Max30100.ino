@@ -30,9 +30,9 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", 19800, 60000);  // UTC+5:30 for IST
 // Time variables
 int currentHour = 0;
 int currentMinute = 0;
-int currentDay = 1;
-int currentMonth = 1;
-int currentYear = 2023;
+int currentDay = 6;
+int currentMonth = 6;
+int currentYear = 2025;
 unsigned long lastMinuteIncrement = 0;
 const unsigned long minuteInterval = 60000;  // 60 seconds
 bool timeFlag = false;
@@ -55,7 +55,7 @@ PulseOximeter pox;
 #define TEMP_FRAC_REG 0x17
 
 // Measurement variables
-const byte RATE_SIZE = 4;
+const byte RATE_SIZE = 6; //increase for more accuracy : max 10 if you exceed it takes more time to read.
 byte rates[RATE_SIZE];
 byte rateSpot = 0;
 long lastBeat = 0;
@@ -101,9 +101,8 @@ void displayTimeDate() {
   display.setTextSize(1);  // Smaller text for date
   display.setCursor(35, 30);
   display.printf("%04d-%02d-%02d", currentYear, currentMonth, currentDay);
-  display.setCursor(35,50);
-  display.print(F("Pressed:"));
-  display.println(presenceDetected ? F("Yes") : F("No"));
+  display.setCursor(10,50);
+  display.print(F("Press for 6 seconds"));
   display.display();
 }
 
@@ -191,11 +190,13 @@ void readSpO2() {
 void readPresence() {
   pox.update();
   presenceDetected = (pox.getHeartRate() > 30 || pox.getSpO2() > 50);
+  Serial.println(presenceDetected ? F("Yes"):F("No"));
 }
 
 // Read heart rate
 void readHeartRate() {
   pox.update();
+  Serial.println("Heart Rate");
   float bpm = pox.getHeartRate();
   if (bpm > 30 && bpm < 200) {
     if (millis() - lastBeat > 300) {
@@ -344,7 +345,7 @@ void setup() {
   // Display initial time and date
   displayTimeDate();
   Serial.printf("Initial Time: %02d:%02d, Date: %d-%02d-%02d\n", currentHour, currentMinute, currentYear, currentMonth, currentDay);
-
+  Serial.println("Button Pressed (Yes/No):");
   // Disconnect Wi-Fi to save power
   // WiFi.disconnect(true);
   // WiFi.mode(WIFI_OFF);
@@ -355,15 +356,18 @@ void setup() {
 
 void loop() {
   // readTemperature();
-  readSpO2();
+  updateLocalTime();
   readPresence();
+  if (presenceDetected){
+  readSpO2();
   readHeartRate();
   readRawSignals();
-  updateLocalTime();
+  }
+
   if ((millis() - lastUpdate >= updateInterval)){
     if (presenceDetected)
     {
-       printData();
+      printData();
       timeFlag = true;
     }
     else if(timeFlag){
